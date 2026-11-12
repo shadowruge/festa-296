@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0b3bd6">
 <title>Festa 296 • Irajá x Castelo • Fala Fina</title>
 <style>
 :root{--azul:#0b3bd6;--azul2:#061f7a;--verm:#e4202e;--bg:#071445;--card:#0e2370;--txt:#fff;--mut:#b9c6f5}
@@ -118,7 +122,7 @@ footer{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
 <footer>Established in 2026 • Rio de Janeiro • VP</footer>
 
 <script>
-// URL de implantação do Apps Script (termina em /exec):
+// Cole aqui a URL de implantação do Apps Script (termina em /exec):
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyfxTfqZrBGuMYQZMiDY12pc7J8MlnE1NEhHWPx3gsXSuPJsfVRwK3wBA-0cip_-dX/exec";
 
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
@@ -132,34 +136,23 @@ tam.onchange=()=>{
   preco.textContent=`Valor: R$ ${38+extra},00 • R$ ${36+extra},00 (acima de 10) • R$ ${34+extra},00 (acima de 30)`;
 };
 
-// Envio por <script> (JSONP): não depende de CORS e confirma de verdade a gravação
-function enviar(data){
-  return new Promise((resolve,reject)=>{
-    const cb='cb_'+Date.now()+Math.floor(Math.random()*1e6);
-    const s=document.createElement('script');
-    const fim=()=>{clearTimeout(t);delete window[cb];s.remove();};
-    const t=setTimeout(()=>{fim();reject(new Error('tempo esgotado'));},15000);
-    window[cb]=r=>{fim();(r&&r.ok)?resolve():reject(new Error((r&&r.erro)||'falha'));};
-    s.onerror=()=>{fim();reject(new Error('rede'));};
-    data.set('callback',cb);
-    s.src=SCRIPT_URL+'?'+data.toString();
-    document.body.appendChild(s);
-  });
-}
-
 document.querySelectorAll('form').forEach(f=>f.onsubmit=async e=>{
   e.preventDefault();
   const msg=f.querySelector('.msg'),btn=f.querySelector('.btn');
   msg.className='msg';
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/AKfycb[\w-]{20,}\/exec$/.test(SCRIPT_URL)){
+    msg.textContent='Configure a SCRIPT_URL no index.html.';msg.className='msg err';return;
+  }
   const data=new URLSearchParams(new FormData(f));
   data.set('aba',f.dataset.aba);
   btn.disabled=true;
   try{
-    await enviar(data);
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:data});
+    if((await r.text()).trim()!=='ok') throw new Error('resposta inesperada');
     msg.textContent='✅ Inscrição enviada! Valeu, o bonde é coeso!';msg.className='msg ok';
     f.reset();
   }catch(err){
-    msg.textContent='❌ Não foi possível confirmar o envio ('+err.message+'). Chame o organizador no grupo.';msg.className='msg err';
+    msg.textContent='Não foi possível confirmar o envio. Chame o organizador no grupo.';msg.className='msg err';
   }
   btn.disabled=false;
 });
