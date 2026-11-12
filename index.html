@@ -118,8 +118,8 @@ footer{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
 <footer>Established in 2026 • Rio de Janeiro • VP</footer>
 
 <script>
-// 1) Cole aqui a URL do Apps Script (veja instruções):
-const SCRIPT_URL = "https://script.google.com/macros/s/1ztpntOisx0drmA45CqNxPylAucOawTcbn3DVJe3kHxs/exec";
+// Cole aqui a URL de implantação do Apps Script (termina em /exec):
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyfxTfqZrBGuMYQZMiDY12pc7J8MlnE1NEhHWPx3gsXSuPJsfVRwK3wBA-0cip_-dX/exec";
 
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tabs button,form').forEach(e=>e.classList.remove('on'));
@@ -136,16 +136,19 @@ document.querySelectorAll('form').forEach(f=>f.onsubmit=async e=>{
   e.preventDefault();
   const msg=f.querySelector('.msg'),btn=f.querySelector('.btn');
   msg.className='msg';
-  if(SCRIPT_URL.startsWith('COLE')){msg.textContent='Configure a SCRIPT_URL no index.html.';msg.className='msg err';return}
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/AKfycb[\w-]{20,}\/exec$/.test(SCRIPT_URL)){
+    msg.textContent='Configure a SCRIPT_URL no index.html.';msg.className='msg err';return;
+  }
   const data=new URLSearchParams(new FormData(f));
   data.set('aba',f.dataset.aba);
   btn.disabled=true;
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:data});
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:data});
+    if((await r.text()).trim()!=='ok') throw new Error('resposta inesperada');
     msg.textContent='✅ Inscrição enviada! Valeu, o bonde é coeso!';msg.className='msg ok';
     f.reset();
   }catch(err){
-    msg.textContent='Erro ao enviar. Tente novamente.';msg.className='msg err';
+    msg.textContent='Não foi possível confirmar o envio. Chame o organizador no grupo.';msg.className='msg err';
   }
   btn.disabled=false;
 });
