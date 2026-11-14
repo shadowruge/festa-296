@@ -22,6 +22,8 @@ main{max-width:760px;margin:0 auto;padding:16px}
 .payment-qr{display:block;width:100%;max-width:320px;height:auto;margin:0 auto;border-radius:10px}
 section{background:var(--card);border:1px solid #2a43a8;border-radius:14px;padding:18px;margin-bottom:18px}
 h2{margin:0 0 10px;font-size:1.3rem}
+.pix{text-align:center}
+.payment-title{text-align:center}
 table{width:100%;border-collapse:collapse}
 td,th{padding:8px;border-bottom:1px solid #2a43a8;text-align:left}
 td:last-child,th:last-child{text-align:right;font-weight:800}
@@ -29,6 +31,10 @@ ul{margin:10px 0 0;padding-left:20px;color:var(--mut)}
 .tabs{display:flex;gap:8px;margin-bottom:12px}
 .tabs button{flex:1;padding:12px;border:0;border-radius:10px;font-weight:800;font-size:1rem;cursor:pointer;background:#1a3190;color:#fff}
 .tabs button.on{background:var(--verm)}
+.churrasco-info{max-height:0;margin:0;padding:0 12px;overflow:hidden;opacity:0;transform:translateY(-6px);border-radius:8px;background:#061f7a;color:var(--mut);transition:max-height .35s ease,margin .35s ease,padding .35s ease,opacity .25s ease,transform .35s ease}
+.churrasco-info.visible{max-height:200px;margin:0 0 12px;padding:12px;opacity:1;transform:translateY(0)}
+.churrasco-info p{margin:0}
+@media (prefers-reduced-motion: reduce){.churrasco-info{transition:none}}
 form{display:none}form.on{display:block}
 label{display:block;margin:12px 0 4px;font-weight:700}
 input,select{width:100%;padding:12px;border-radius:8px;border:0;font-size:1rem}
@@ -73,6 +79,9 @@ footer{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
       <button type="button" class="on" data-t="camiseta">Camisa</button>
       <button type="button" data-t="churrasco">Churrasco</button>
     </div>
+    <div class="churrasco-info" id="churrasco-info" aria-hidden="true">
+      <p>O valor do churrasco é de <strong>R$ 50,00</strong>: R$ 20,00 para a carne e R$ 30,00 para bebidas e itens a combinar, como copos e papel higiênico.</p>
+    </div>
 
     <form id="camiseta" class="on" data-aba="Camiseta">
       <label>Nome (como vai na camisa)</label>
@@ -114,12 +123,13 @@ footer{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
   </section>
 
   <section>
-    <h2>Os pagamentos devem ser efetuados aqui</h2>
+    <h2 class="payment-title">Os pagamentos devem ser efetuados aqui</h2>
+    <h3 class="pix">PIX a957b8ff-45f8-48d7-8884-573c06a85144</h3>
     <img class="payment-qr" src="pix_qrcode.png" alt="QR code para pagamento via Pix">
   </section>
 </main>
 
-<footer>Established in 2026 • Rio de Janeiro • VP</footer>
+<footer>Established in 2026 • Rio de Janeiro • By InfoDevBrasil</footer>
 
 <script>
 // Cole aqui a URL de implantação do Apps Script (termina em /exec):
@@ -128,6 +138,10 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyfxTfqZrBGuMYQZMiD
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tabs button,form').forEach(e=>e.classList.remove('on'));
   b.classList.add('on');document.getElementById(b.dataset.t).classList.add('on');
+  const mostrandoChurrasco=b.dataset.t==='churrasco';
+  const infoChurrasco=document.getElementById('churrasco-info');
+  infoChurrasco.classList.toggle('visible',mostrandoChurrasco);
+  infoChurrasco.setAttribute('aria-hidden',String(!mostrandoChurrasco));
 });
 
 const tam=document.getElementById('tam'),preco=document.getElementById('preco');
